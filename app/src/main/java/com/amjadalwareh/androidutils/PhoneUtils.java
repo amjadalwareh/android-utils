@@ -16,6 +16,10 @@ public final class PhoneUtils {
         return getVersion(Build.VERSION_CODES.M);
     }
 
+    public static boolean isOreo() {
+        return getVersion(Build.VERSION_CODES.O);
+    }
+
     private static boolean getVersion(int version) {
         return Build.VERSION.SDK_INT >= version;
     }
