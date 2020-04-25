@@ -44,7 +44,7 @@ public class AndroidLogDetector extends Detector implements SourceCodeScanner {
     public void visitMethodCall(@NotNull JavaContext context, @NotNull UCallExpression node, @NotNull PsiMethod method) {
         super.visitMethodCall(context, node, method);
         JavaEvaluator evaluator = context.getEvaluator();
-        if (evaluator.isMemberInClass(method, "android.util.LOG"))
-            context.report(AccessibilityDetector.ISSUE, node, context.getCallLocation(node, true, true), "NO Access");
+//        if (evaluator.isMemberInClass(method, "android.util.LOG"))
+//            context.report(AccessibilityDetector.ISSUE, node, context.getCallLocation(node, true, true), "NO Access");
     }
 }
