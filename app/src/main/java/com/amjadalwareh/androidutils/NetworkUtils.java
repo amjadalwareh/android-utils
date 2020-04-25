@@ -15,7 +15,7 @@ public final class NetworkUtils {
      * @param context
      * @return true if connected, otherwise false
      */
-    //@RequiresPermission(Manifest.permission.ACCESS_NETWORK_STATE)
+    @RequiresPermission(Manifest.permission.ACCESS_NETWORK_STATE)
     public static boolean isNetworkConnected(@NonNull Context context) {
         ConnectivityManager connectivityManager = (ConnectivityManager) Utils.getService(context, Context.CONNECTIVITY_SERVICE);
 
