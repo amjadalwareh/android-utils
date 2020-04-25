@@ -1,6 +1,10 @@
 package com.amjadalwareh.androidutils;
 
+import android.content.Context;
+import android.content.pm.PackageManager;
 import android.os.Build;
+
+import androidx.annotation.NonNull;
 
 public final class PhoneUtils {
 
@@ -14,6 +18,11 @@ public final class PhoneUtils {
 
     private static boolean getVersion(int version) {
         return Build.VERSION.SDK_INT >= version;
+    }
+
+    public static boolean checkPermissionGranted(@NonNull Context context, String permission) {
+        if (!isMarshmallow()) return true;
+        return context.checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED;
     }
 
 }
