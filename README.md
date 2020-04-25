@@ -20,4 +20,3 @@ dependencies {
     implementation "com.github.AmjadAlwareh25:Android-Utils:$utilsVersion"
 }
 ```
-# Android-Utils
