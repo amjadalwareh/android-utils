@@ -2,21 +2,37 @@ package com.amjadalwareh.androidutils;
 
 import android.content.Context;
 import android.net.ConnectivityManager;
+import android.net.NetworkCapabilities;
 import android.net.NetworkInfo;
+import android.os.Build;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RequiresPermission;
 
 public final class NetworkUtils {
 
-    @RequiresPermission(android.Manifest.permission.ACCESS_NETWORK_STATE)
-    private static NetworkInfo getNetworkState(@NonNull Context context) {
-        ConnectivityManager connectivityManager = (ConnectivityManager) Utils.getService(context, Context.CONNECTIVITY_SERVICE);
-
-        if (connectivityManager == null) return null;
-
-        return connectivityManager.getActiveNetworkInfo();
+    private static ConnectivityManager getConnectivityManager(Context context) {
+        return (ConnectivityManager) Utils.getService(context, Context.CONNECTIVITY_SERVICE);
     }
+
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    @RequiresPermission(android.Manifest.permission.ACCESS_NETWORK_STATE)
+    private static NetworkCapabilities getNetworkCapabilities(@NonNull Context context) {
+        ConnectivityManager manager = getConnectivityManager(context);
+
+        return manager.getNetworkCapabilities(manager.getActiveNetwork());
+    }
+
+    @RequiresPermission(android.Manifest.permission.ACCESS_NETWORK_STATE)
+    private static NetworkInfo getActiveNetwork(@NonNull Context context) {
+        ConnectivityManager manager = getConnectivityManager(context);
+
+        if (manager == null) return null;
+
+        return manager.getActiveNetworkInfo();
+    }
+
 
     /***
      * A method to check if device connected to network or not
@@ -25,26 +41,35 @@ public final class NetworkUtils {
      */
     @RequiresPermission(android.Manifest.permission.ACCESS_NETWORK_STATE)
     public static boolean isNetworkConnected(@NonNull Context context) {
-        NetworkInfo info = getNetworkState(context);
+        NetworkInfo info = getActiveNetwork(context);
         return info != null && info.isConnected();
     }
 
     @RequiresPermission(android.Manifest.permission.ACCESS_NETWORK_STATE)
     public static boolean isWifiConnected(@NonNull Context context) {
-        NetworkInfo info = getNetworkState(context);
+        if (PhoneUtils.isMarshmallow()) {
+            return getNetworkCapabilities(context).hasTransport(NetworkCapabilities.TRANSPORT_WIFI);
 
-        if (info == null) return false;
+        } else {
+            NetworkInfo info = getActiveNetwork(context);
 
-        return info.getType() == ConnectivityManager.TYPE_WIFI;
+            if (info == null) return false;
+
+            return info.getType() == ConnectivityManager.TYPE_WIFI;
+        }
     }
 
     @RequiresPermission(android.Manifest.permission.ACCESS_NETWORK_STATE)
     public static boolean isMobileDataConnected(@NonNull Context context) {
-        NetworkInfo info = getNetworkState(context);
+        if (PhoneUtils.isMarshmallow()) {
+            return getNetworkCapabilities(context).hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR);
 
-        if (info == null) return false;
+        } else {
+            NetworkInfo info = getActiveNetwork(context);
 
-        return info.getType() == ConnectivityManager.TYPE_MOBILE;
+            if (info == null) return false;
+
+            return info.getType() == ConnectivityManager.TYPE_MOBILE;
+        }
     }
-
 }
