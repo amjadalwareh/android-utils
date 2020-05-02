@@ -101,15 +101,21 @@ public final class NetworkUtils {
     }
 
     public static void openWiFiSettings(@NonNull Context context) {
-        Utils.startIntent(context, Settings.ACTION_WIRELESS_SETTINGS);
+        if (PhoneUtils.isAndroid10())
+            Utils.startIntent(context, Settings.Panel.ACTION_INTERNET_CONNECTIVITY);
+        else
+            Utils.startIntent(context, Settings.ACTION_WIRELESS_SETTINGS);
     }
 
     public static void openDataSettings(@NonNull Context context) {
         Utils.startIntent(context, Settings.ACTION_DATA_ROAMING_SETTINGS);
     }
 
-    public static void openInternetSettings(@NonNull Activity activity, int requestCode) {
-        if (PhoneUtils.isAndroid10())
-            activity.startActivityForResult(new Intent(Settings.Panel.ACTION_INTERNET_CONNECTIVITY), requestCode);
+    @RequiresApi(api = Build.VERSION_CODES.Q)
+    public static void openInternetPanel(@NonNull Activity activity, int requestCode) {
+        Intent intent = new Intent(Settings.Panel.ACTION_INTERNET_CONNECTIVITY);
+
+        if (requestCode == -1) activity.startActivity(intent);
+        else activity.startActivityForResult(intent, requestCode);
     }
 }
