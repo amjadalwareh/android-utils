@@ -1,38 +1,21 @@
 package com.amjadalwareh.androidutils;
 
+import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkCapabilities;
 import android.net.NetworkInfo;
+import android.net.wifi.WifiManager;
 import android.os.Build;
+import android.provider.Settings;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RequiresPermission;
 
 public final class NetworkUtils {
-
-    private static ConnectivityManager getConnectivityManager(Context context) {
-        return (ConnectivityManager) Utils.getService(context, Context.CONNECTIVITY_SERVICE);
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.M)
-    @RequiresPermission(android.Manifest.permission.ACCESS_NETWORK_STATE)
-    private static NetworkCapabilities getNetworkCapabilities(@NonNull Context context) {
-        ConnectivityManager manager = getConnectivityManager(context);
-
-        return manager.getNetworkCapabilities(manager.getActiveNetwork());
-    }
-
-    @RequiresPermission(android.Manifest.permission.ACCESS_NETWORK_STATE)
-    private static NetworkInfo getActiveNetwork(@NonNull Context context) {
-        ConnectivityManager manager = getConnectivityManager(context);
-
-        if (manager == null) return null;
-
-        return manager.getActiveNetworkInfo();
-    }
-
 
     /***
      * A method to check if device connected to network or not
@@ -71,5 +54,62 @@ public final class NetworkUtils {
 
             return info.getType() == ConnectivityManager.TYPE_MOBILE;
         }
+    }
+
+    @RequiresPermission(Manifest.permission.CHANGE_WIFI_STATE)
+    public static boolean turnOnWifi(@NonNull Context context) {
+        return changeWiFiState(context, true);
+    }
+
+    @RequiresPermission(android.Manifest.permission.CHANGE_WIFI_STATE)
+    public static boolean turnOffWifi(@NonNull Context context) {
+        return changeWiFiState(context, false);
+    }
+
+    private static ConnectivityManager getConnectivityManager(Context context) {
+        return (ConnectivityManager) Utils.getService(context, Context.CONNECTIVITY_SERVICE);
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    @RequiresPermission(android.Manifest.permission.ACCESS_NETWORK_STATE)
+    private static NetworkCapabilities getNetworkCapabilities(@NonNull Context context) {
+        ConnectivityManager manager = getConnectivityManager(context);
+
+        return manager.getNetworkCapabilities(manager.getActiveNetwork());
+    }
+
+    @RequiresPermission(android.Manifest.permission.ACCESS_NETWORK_STATE)
+    private static NetworkInfo getActiveNetwork(@NonNull Context context) {
+        ConnectivityManager manager = getConnectivityManager(context);
+
+        if (manager == null) return null;
+
+        return manager.getActiveNetworkInfo();
+    }
+
+    @RequiresPermission(android.Manifest.permission.CHANGE_WIFI_STATE)
+    private static boolean changeWiFiState(@NonNull Context context, boolean turnOn) {
+        try {
+            if (PhoneUtils.isAndroid10()) return false;
+
+            WifiManager manager = (WifiManager) Utils.getService(context, Context.WIFI_SERVICE);
+
+            return manager.setWifiEnabled(turnOn);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public static void openWiFiSettings(@NonNull Context context) {
+        Utils.startIntent(context, Settings.ACTION_WIRELESS_SETTINGS);
+    }
+
+    public static void openDataSettings(@NonNull Context context) {
+        Utils.startIntent(context, Settings.ACTION_DATA_ROAMING_SETTINGS);
+    }
+
+    public static void openInternetSettings(@NonNull Activity activity, int requestCode) {
+        if (PhoneUtils.isAndroid10())
+            activity.startActivityForResult(new Intent(Settings.Panel.ACTION_INTERNET_CONNECTIVITY), requestCode);
     }
 }
