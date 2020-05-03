@@ -1,9 +1,7 @@
 package com.amjadalwareh.androidutils;
 
 import android.Manifest;
-import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkCapabilities;
 import android.net.NetworkInfo;
@@ -17,10 +15,11 @@ import androidx.annotation.RequiresPermission;
 
 public final class ConnectivityUtils {
 
-    /***
-     * A method to check if device connected to network or not
+    /**
+     * Check if the device is connected to network or not
+     *
      * @param context The app context
-     * @return true if connected, otherwise false
+     * @return {@code true} if connected, otherwise {@code false}
      */
     @RequiresPermission(android.Manifest.permission.ACCESS_NETWORK_STATE)
     public static boolean isNetworkConnected(@NonNull Context context) {
@@ -28,6 +27,12 @@ public final class ConnectivityUtils {
         return info != null && info.isConnected();
     }
 
+    /**
+     * Check if device WiFi is connected or not.
+     *
+     * @param context The app context.
+     * @return {@code true} if connected, otherwise {@code false}.
+     */
     @RequiresPermission(android.Manifest.permission.ACCESS_NETWORK_STATE)
     public static boolean isWifiConnected(@NonNull Context context) {
         if (PhoneUtils.isMarshmallow()) {
@@ -42,6 +47,12 @@ public final class ConnectivityUtils {
         }
     }
 
+    /**
+     * Check if device mobile data is on or not.
+     *
+     * @param context The app context.
+     * @return {@code true} if on, otherwise {@code false}.
+     */
     @RequiresPermission(android.Manifest.permission.ACCESS_NETWORK_STATE)
     public static boolean isMobileDataConnected(@NonNull Context context) {
         if (PhoneUtils.isMarshmallow()) {
@@ -56,14 +67,65 @@ public final class ConnectivityUtils {
         }
     }
 
+    /**
+     * Turn WiFi on
+     * Please note that starting from {@link Build.VERSION_CODES#Q},applications are not allowed to
+     * enable Wi-Fi.
+     *
+     * @param context The app context
+     * @return {@code true} if WiFi state has changed, but if the app is targeting {@link Build.VERSION_CODES#Q} then will return {@code false} or if the state has been not changed.
+     */
     @RequiresPermission(Manifest.permission.CHANGE_WIFI_STATE)
     public static boolean turnOnWifi(@NonNull Context context) {
         return changeWiFiState(context, true);
     }
 
+    /**
+     * Turn WiFi off
+     * Please note that starting from {@link Build.VERSION_CODES#Q},applications are not allowed to
+     * disable Wi-Fi.
+     *
+     * @param context The app context
+     * @return {@code true} if WiFi state has changed, but if the app is targeting {@link Build.VERSION_CODES#Q} then will return {@code false} or if the state has been not changed.
+     */
     @RequiresPermission(android.Manifest.permission.CHANGE_WIFI_STATE)
     public static boolean turnOffWifi(@NonNull Context context) {
         return changeWiFiState(context, false);
+    }
+
+    /**
+     * Open WiFi Settings, if the app run on device that has {@link Build.VERSION_CODES#Q} then it will open the new Settings panel.
+     * you can read more about it <a href="https://developer.android.com/reference/kotlin/android/provider/Settings.Panel">here</a>
+     *
+     * @param context the application context
+     */
+    public static void openWiFiSettings(@NonNull Context context) {
+        if (PhoneUtils.isAndroidQ())
+            Utils.startIntent(context, Settings.Panel.ACTION_INTERNET_CONNECTIVITY);
+        else
+            Utils.startIntent(context, Settings.ACTION_WIRELESS_SETTINGS);
+    }
+
+    /**
+     * Open Mobile data Settings.
+     *
+     * @param context the application context
+     */
+    public static void openDataSettings(@NonNull Context context) {
+        Utils.startIntent(context, Settings.ACTION_DATA_ROAMING_SETTINGS);
+    }
+
+    /**
+     * Open NFC Settings, if the app run on device that has {@link Build.VERSION_CODES#Q} then it will open the new Settings panel.
+     * you can read more about it <a href="https://developer.android.com/reference/kotlin/android/provider/Settings.Panel">here</a>
+     *
+     * @param context the application context
+     */
+    public static void openNfcSettings(@NonNull Context context) {
+        if (PhoneUtils.isAndroidQ())
+            Utils.startIntent(context, Settings.Panel.ACTION_NFC);
+        else
+            Utils.startIntent(context, Settings.ACTION_NFC_SETTINGS);
     }
 
     private static ConnectivityManager getConnectivityManager(Context context) {
@@ -98,24 +160,5 @@ public final class ConnectivityUtils {
         } catch (Exception e) {
             return false;
         }
-    }
-
-    public static void openWiFiSettings(@NonNull Context context) {
-        if (PhoneUtils.isAndroidQ())
-            Utils.startIntent(context, Settings.Panel.ACTION_INTERNET_CONNECTIVITY);
-        else
-            Utils.startIntent(context, Settings.ACTION_WIRELESS_SETTINGS);
-    }
-
-    public static void openDataSettings(@NonNull Context context) {
-        Utils.startIntent(context, Settings.ACTION_DATA_ROAMING_SETTINGS);
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.Q)
-    public static void openInternetPanel(@NonNull Activity activity, int requestCode) {
-        Intent intent = new Intent(Settings.Panel.ACTION_INTERNET_CONNECTIVITY);
-
-        if (requestCode == -1) activity.startActivity(intent);
-        else activity.startActivityForResult(intent, requestCode);
     }
 }
