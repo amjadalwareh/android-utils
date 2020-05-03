@@ -17,6 +17,6 @@ Back to your ```build.gradle App level```
 ```
 dependencies {
     def utilsVersion = "1.0-beta12"
-    implementation "com.github.AmjadAlwareh25:Android-Utils:$utilsVersion"
+    implementation "com.github.amjad-alwareh:android-utils:utilsVersion"
 }
 ```
