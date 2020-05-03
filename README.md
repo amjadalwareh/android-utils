@@ -54,8 +54,8 @@ PhoneUtils.isNougat();
 PhoneUtils.isOreo();
 PhoneUtils.isPie();
 PhoneUtils.isAndroidQ(); // AKA Android 10
-PhoneUtils.isPackageInstalled();
-PhoneUtils.checkPermissionGranted();
+PhoneUtils.isPackageInstalled(Context, PackageName);
+PhoneUtils.checkPermissionGranted(Context, Permission);
 
 ```
 
