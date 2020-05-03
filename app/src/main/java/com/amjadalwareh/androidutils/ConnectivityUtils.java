@@ -15,7 +15,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RequiresPermission;
 
-public final class NetworkUtils {
+public final class ConnectivityUtils {
 
     /***
      * A method to check if device connected to network or not
@@ -90,7 +90,7 @@ public final class NetworkUtils {
     @RequiresPermission(android.Manifest.permission.CHANGE_WIFI_STATE)
     private static boolean changeWiFiState(@NonNull Context context, boolean turnOn) {
         try {
-            if (PhoneUtils.isAndroid10()) return false;
+            if (PhoneUtils.isAndroidQ()) return false;
 
             WifiManager manager = (WifiManager) Utils.getService(context, Context.WIFI_SERVICE);
 
@@ -101,7 +101,7 @@ public final class NetworkUtils {
     }
 
     public static void openWiFiSettings(@NonNull Context context) {
-        if (PhoneUtils.isAndroid10())
+        if (PhoneUtils.isAndroidQ())
             Utils.startIntent(context, Settings.Panel.ACTION_INTERNET_CONNECTIVITY);
         else
             Utils.startIntent(context, Settings.ACTION_WIRELESS_SETTINGS);
