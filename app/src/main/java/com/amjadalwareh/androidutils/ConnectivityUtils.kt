@@ -5,6 +5,7 @@ import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.net.NetworkInfo
+import android.net.NetworkRequest
 import android.net.wifi.WifiManager
 import android.os.Build
 import android.provider.Settings
@@ -36,7 +37,17 @@ object ConnectivityUtils {
         val info = getActiveNetwork(context)
 
         listener?.let {
-            if (PhoneUtils.isLollipop()) NetworkMonitor(listener) else NetworkReceiver(context, listener)
+            if (PhoneUtils.isLollipop()) {
+
+                val networkRequest = NetworkRequest.Builder()
+                        .addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR)
+                        .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
+                        .build()
+
+                val connectivityManager = getConnectivityManager(context)
+                connectivityManager.registerNetworkCallback(networkRequest, NetworkMonitor(listener))
+
+            } else NetworkReceiver(context, listener)
         }
 
         return info != null && info.isConnected
@@ -156,5 +167,4 @@ object ConnectivityUtils {
             false
         }
     }
-
 }
