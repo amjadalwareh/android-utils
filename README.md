@@ -17,7 +17,7 @@ repositories {
 Back to your ```build.gradle App level```
 ```groovy
 dependencies {
-    def utilsVersion = "1.0-beta14"
+    def utilsVersion = "1.0-beta18"
     implementation "com.github.amjad-alwareh:android-utils:utilsVersion"
 }
 ```

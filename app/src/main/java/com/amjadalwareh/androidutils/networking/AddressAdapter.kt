@@ -1,11 +1,13 @@
 package com.amjadalwareh.androidutils.networking
 
 import okhttp3.OkHttpClient
+import okhttp3.ResponseBody
 import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 
 class AddressAdapter {
@@ -13,13 +15,15 @@ class AddressAdapter {
     fun getAddress(addressCallback: AddressCallback) {
         val addressService = getRetrofit()?.create(AddressService::class.java) as AddressService
 
-        addressService.getAddress().enqueue(object : Callback<JSONObject> {
-            override fun onResponse(call: Call<JSONObject>, response: Response<JSONObject>) {
-                if (response.isSuccessful) response.body()?.getString("ip")?.let { addressCallback.getAddress(it) }
-                else addressCallback.getAddress("0.0.0.0")
+        addressService.getAddress().enqueue(object : Callback<ResponseBody> {
+            override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
+                if (response.isSuccessful) {
+                    val jsonObject = JSONObject(response.body()?.string())
+                    addressCallback.getAddress(jsonObject.getString("ip"))
+                } else addressCallback.getAddress("0.0.0.0")
             }
 
-            override fun onFailure(call: Call<JSONObject>, t: Throwable) {
+            override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
                 addressCallback.getAddress("0.0.0.0")
             }
         })
@@ -34,7 +38,9 @@ class AddressAdapter {
                         .writeTimeout(30, TimeUnit.SECONDS)
                         .followSslRedirects(false)
                         .build()
-                ).build()
+                )
+                .addConverterFactory(GsonConverterFactory.create())
+                .build()
     }
 
 }
