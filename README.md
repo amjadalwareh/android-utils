@@ -42,6 +42,7 @@ ConnectivityUtils.turnOffWifi(Context);
 ConnectivityUtils.openWiFiSettings(Context);
 ConnectivityUtils.openDataSettings(Context);
 ConnectivityUtils.openNfcSettings(Context);
+ConnectivityUtils.getIpAddress(AddressCallback);
 ```
 
 * Phone Utils

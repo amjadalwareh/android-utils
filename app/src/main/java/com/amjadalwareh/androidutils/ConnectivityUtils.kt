@@ -2,6 +2,7 @@ package com.amjadalwareh.androidutils
 
 import android.Manifest
 import android.content.Context
+import android.content.IntentFilter
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.net.NetworkInfo
@@ -11,6 +12,7 @@ import android.os.Build
 import android.provider.Settings
 import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresPermission
+import com.amjadalwareh.androidutils.networking.*
 
 object ConnectivityUtils {
 
@@ -20,6 +22,7 @@ object ConnectivityUtils {
      * @param context The app context
      * @return `true` if connected, otherwise `false`
      */
+    @JvmStatic
     @RequiresPermission(Manifest.permission.ACCESS_NETWORK_STATE)
     fun isNetworkConnected(context: Context): Boolean {
         return isNetworkConnected(context, null)
@@ -32,11 +35,12 @@ object ConnectivityUtils {
      * @param listener A listener for network callback
      * @return `true` if connected, otherwise `false`
      */
+    @JvmStatic
     @RequiresPermission(Manifest.permission.ACCESS_NETWORK_STATE)
     fun isNetworkConnected(context: Context, listener: NetworkListener?): Boolean {
         val info = getActiveNetwork(context)
 
-        listener?.let {
+        listener?.apply {
             if (PhoneUtils.isLollipop()) {
 
                 val networkRequest = NetworkRequest.Builder()
@@ -47,7 +51,10 @@ object ConnectivityUtils {
                 val connectivityManager = getConnectivityManager(context)
                 connectivityManager.registerNetworkCallback(networkRequest, NetworkMonitor(listener))
 
-            } else NetworkReceiver(context, listener)
+            } else {
+                val intentFilter = IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION)
+                context.registerReceiver(NetworkReceiver(context, listener), intentFilter)
+            }
         }
 
         return info != null && info.isConnected
@@ -59,6 +66,7 @@ object ConnectivityUtils {
      * @param context The app context.
      * @return `true` if connected, otherwise `false`.
      */
+    @JvmStatic
     @RequiresPermission(Manifest.permission.ACCESS_NETWORK_STATE)
     fun isWifiConnected(context: Context): Boolean {
         return if (PhoneUtils.isMarshmallow()) {
@@ -75,6 +83,7 @@ object ConnectivityUtils {
      * @param context The app context.
      * @return `true` if on, otherwise `false`.
      */
+    @JvmStatic
     @RequiresPermission(Manifest.permission.ACCESS_NETWORK_STATE)
     fun isMobileDataConnected(context: Context): Boolean {
         return if (PhoneUtils.isMarshmallow()) {
@@ -93,6 +102,7 @@ object ConnectivityUtils {
      * @param context The app context
      * @return `true` if WiFi state has changed, but if the app is targeting [Build.VERSION_CODES.Q] then will return `false` or if the state has been not changed.
      */
+    @JvmStatic
     @RequiresPermission(Manifest.permission.CHANGE_WIFI_STATE)
     fun turnOnWifi(context: Context): Boolean {
         return changeWiFiState(context, true)
@@ -106,6 +116,7 @@ object ConnectivityUtils {
      * @param context The app context
      * @return `true` if WiFi state has changed, but if the app is targeting [Build.VERSION_CODES.Q] then will return `false` or if the state has been not changed.
      */
+    @JvmStatic
     @RequiresPermission(Manifest.permission.CHANGE_WIFI_STATE)
     fun turnOffWifi(context: Context): Boolean {
         return changeWiFiState(context, false)
@@ -117,8 +128,9 @@ object ConnectivityUtils {
      *
      * @param context the application context
      */
+    @JvmStatic
     fun openWiFiSettings(context: Context) {
-        if (PhoneUtils.isAndroidQ()) Utils.startIntent(context, Settings.Panel.ACTION_INTERNET_CONNECTIVITY) else Utils.startIntent(context, Settings.ACTION_WIRELESS_SETTINGS)
+        Utils.startIntent(context, if (PhoneUtils.isAndroidQ()) Settings.Panel.ACTION_INTERNET_CONNECTIVITY else Settings.ACTION_WIRELESS_SETTINGS)
     }
 
     /**
@@ -126,6 +138,7 @@ object ConnectivityUtils {
      *
      * @param context the application context
      */
+    @JvmStatic
     fun openDataSettings(context: Context) {
         Utils.startIntent(context, Settings.ACTION_DATA_ROAMING_SETTINGS)
     }
@@ -136,8 +149,19 @@ object ConnectivityUtils {
      *
      * @param context the application context
      */
+    @JvmStatic
     fun openNfcSettings(context: Context) {
         if (PhoneUtils.isAndroidQ()) Utils.startIntent(context, Settings.Panel.ACTION_NFC) else Utils.startIntent(context, Settings.ACTION_NFC_SETTINGS)
+    }
+
+    /**
+     * Get the IP address of the device
+     *
+     * @param addressCallback It's the callback to get the result
+     */
+    @JvmStatic
+    fun getIpAddress(addressCallback: AddressCallback) {
+        AddressAdapter().getAddress(addressCallback)
     }
 
     private fun getConnectivityManager(context: Context): ConnectivityManager {

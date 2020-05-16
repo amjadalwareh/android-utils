@@ -1,9 +1,9 @@
-package com.amjadalwareh.androidutils
+package com.amjadalwareh.androidutils.networking
 
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import androidx.annotation.RequiresPermission
+import com.amjadalwareh.androidutils.ConnectivityUtils
 
 class NetworkReceiver(var context: Context?, var networkListener: NetworkListener?) : BroadcastReceiver() {
 

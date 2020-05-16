@@ -1,9 +1,10 @@
-package com.amjadalwareh.androidutils
+package com.amjadalwareh.androidutils.networking
 
 import android.net.ConnectivityManager
 import android.net.Network
 import android.os.Build
 import androidx.annotation.RequiresApi
+import com.amjadalwareh.androidutils.networking.NetworkListener
 
 @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 class NetworkMonitor(var networkListener: NetworkListener) : ConnectivityManager.NetworkCallback() {
